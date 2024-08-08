@@ -20,6 +20,6 @@ public class ProductController {
 
     @GetMapping
     public APIResponse<List<Product>> list() {
-        return new APIResponse<>(200, null, productRepository.findAll());
+        return APIResponse.Success(productRepository.findAll());
     }
 }

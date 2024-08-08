@@ -1,11 +1,10 @@
 package com.lilonghe.demo.utils;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.lilonghe.demo.interceptor.AuthInterceptor;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.springframework.context.annotation.Bean;
+
+import javax.lang.model.type.NullType;
 
 @Data
 @AllArgsConstructor
@@ -14,4 +13,20 @@ public class APIResponse<T> {
     private int code;
     private String message;
     private T data;
+
+    public static <T> APIResponse<T> Success() {
+        return new APIResponse<>(200, "success", null);
+    }
+
+    public static <T> APIResponse<T> Success(T data) {
+        return new APIResponse<>(200, "success", data);
+    }
+
+    public static <T> APIResponse<T> Success(T data, String message) {
+        return new APIResponse<>(200, message, data);
+    }
+
+    public static <T> APIResponse<T> Error(String message) {
+        return new APIResponse<>(400, message, null);
+    }
 }

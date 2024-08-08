@@ -2,14 +2,23 @@ package com.lilonghe.demo.interceptor;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lilonghe.demo.utils.APIResponse;
+import com.lilonghe.demo.utils.JWTToken;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 @Component
 public class AuthInterceptor implements HandlerInterceptor {
+
+    @Value("${jwt.key}")
+    private String JWTKey;
+
+    @Value("${cookie.name}")
+    private String CookieName;
+
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         if ("/auth/login".equals(request.getRequestURI())) {
@@ -18,8 +27,20 @@ public class AuthInterceptor implements HandlerInterceptor {
         if (request.getCookies() != null) {
             for (Cookie cookie : request.getCookies()) {
                 if ("token".equals(cookie.getName())) {
-                    return true;
+                    String username = JWTToken.parse(JWTKey, cookie.getValue());
+                    if (!username.isEmpty()) {
+                        return true;
+                    }
                 }
+            }
+        }
+
+        String headerAuthorization = request.getHeader("Authorization");
+        if (headerAuthorization != null && headerAuthorization.startsWith("Bearer ")){
+            String token = headerAuthorization.substring(7);
+            String username = JWTToken.parse(JWTKey, token);
+            if (!username.isEmpty()) {
+                return true;
             }
         }
 
